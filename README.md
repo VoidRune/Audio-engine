@@ -1,7 +1,7 @@
 # Audio engine
 
 Audio system written in C++.
-Library is built on top of [XAudio2](https://docs.microsoft.com/en-us/windows/win32/xaudio2/xaudio2-introduction) and [X3DAudio](https://docs.microsoft.com/en-us/windows/win32/xaudio2/x3daudio-overview)
+Library is built on top of [XAudio2](https://docs.microsoft.com/en-us/windows/win32/xaudio2/xaudio2-introduction) and [X3DAudio](https://docs.microsoft.com/en-us/windows/win32/xaudio2/x3daudio-overview).
 
 ## Currently Supports
 - .wav
@@ -27,13 +27,13 @@ AudioEngine::Get().Play3D(sound2, 0, {0, 0, 10});
 //Position can also be set on 2D sources
 AudioEngine::Get().Update3D(sound2, 0, {0, 0, -10});
 ```
-and you can set various attributes on a source as well:
+some other functionality
 ```cpp
 AudioEngine::Get().Stop(sound1);
 //Set volume on desired channel
 AudioEngine::Get().SetVolume(0.8f, 0);
 //Set master volume
-AudioEngine::Get().SetMasterVolume(0.8f, 0);
+AudioEngine::Get().SetMasterVolume(0.6f, 0);
 ```
 
 Simple example of rotating sound
