@@ -55,11 +55,11 @@ public:
 
 	/* Loads the sound in memory							*/
 	/* Can load .wav .mp3 .ogg files						*/
-	void LoadData(Sound* sound, std::string filename, bool looping = false);
+	void LoadData(Sound* sound, const std::string& filename, bool looping = false);
 
 	/* Returns pointer to sound on heap						*/
 	/* Can load .wav .mp3 .ogg files						*/
-	Sound* LoadData(std::string filename, bool looping = false);
+	Sound* LoadData(const std::string& filename, bool looping = false);
 
 	AudioEngine(const AudioEngine&) = delete;
 private:
@@ -67,6 +67,7 @@ private:
 	void LoadWav(Sound* sound, std::string filename, bool looping = false);
 	void LoadMp3(Sound* sound, std::string filename, bool looping = false);
 	void LoadOgg(Sound* sound, std::string filename, bool looping = false);
+	void ConvertToStereo(Sound* sound);
 
 	static AudioEngine* s_Instance;
 };

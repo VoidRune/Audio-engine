@@ -319,7 +319,7 @@ AudioEngine::~AudioEngine()
 	CoUninitialize();
 }
 
-void AudioEngine::LoadData(Sound* sound, std::string filename, bool looping)
+void AudioEngine::LoadData(Sound* sound, const std::string& filename, bool looping)
 {
 	std::filesystem::path path = filename;
 	std::string extension = path.extension().string();
@@ -327,8 +327,9 @@ void AudioEngine::LoadData(Sound* sound, std::string filename, bool looping)
 	if (extension == ".mp3")  LoadMp3(sound, filename, looping);
 	if (extension == ".ogg")  LoadOgg(sound, filename, looping);
 	if (extension == ".wav")  LoadWav(sound, filename, looping);
+	ConvertToStereo(sound);
 }
-Sound* AudioEngine::LoadData(std::string filename, bool looping)
+Sound* AudioEngine::LoadData(const std::string& filename, bool looping)
 {
 	Sound* sound = new Sound;
 
@@ -338,6 +339,7 @@ Sound* AudioEngine::LoadData(std::string filename, bool looping)
 	if (extension == ".mp3")  LoadMp3(sound, filename, looping);
 	if (extension == ".ogg")  LoadOgg(sound, filename, looping);
 	if (extension == ".wav")  LoadWav(sound, filename, looping);
+	ConvertToStereo(sound);
 
 	return sound;
 }
@@ -459,11 +461,39 @@ void AudioEngine::LoadOgg(Sound* sound, std::string filename, bool looping)
 	sound->wfx.Format.nSamplesPerSec = info->rate;
 	sound->wfx.Format.wBitsPerSample = sizeof(short) * 8;
 	sound->wfx.Format.nBlockAlign = info->channels * sizeof(short);
+
 	sound->wfx.Format.nAvgBytesPerSec = sound->wfx.Format.nSamplesPerSec * sound->wfx.Format.nBlockAlign;
 
 	sound->loaded = true;
 
 	ov_clear(&vorbis);
+}
+
+void AudioEngine::ConvertToStereo(Sound* sound)
+{
+	if (sound->wfx.Format.nChannels != 1)
+		return;
+
+	uint32_t monoSamples = sound->buffer.AudioBytes;
+	//monoSamples are in bytes
+	//stereo is uint16_t
+	uint16_t* stereo = new uint16_t[monoSamples];
+	uint16_t* mono = (uint16_t*)sound->buffer.pAudioData;
+
+	uint32_t samples16 = monoSamples / 2;
+	for (size_t i = 0; i < samples16; ++i)
+	{
+		stereo[i * 2] = mono[i];
+		stereo[i * 2 + 1] = mono[i];
+	}
+
+	delete[] mono;
+
+	sound->buffer.AudioBytes = monoSamples * 2;
+	sound->buffer.pAudioData = (BYTE*)stereo;
+	sound->wfx.Format.nChannels = 2;
+	sound->wfx.Format.nBlockAlign = 2 * sizeof(short);
+	sound->wfx.Format.nAvgBytesPerSec = sound->wfx.Format.nSamplesPerSec * sound->wfx.Format.nBlockAlign;
 }
 
 HRESULT FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, DWORD& dwChunkDataPosition)
